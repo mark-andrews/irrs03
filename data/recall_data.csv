@@ -1,0 +1,16 @@
+Observation,Subject,Valence,Recall
+1,Jim,Neg,32
+2,Jim,Neu,15
+3,Jim,Pos,45
+4,Victor,Neg,30
+5,Victor,Neu,13
+6,Victor,Pos,40
+7,Faye,Neg,26
+8,Faye,Neu,12
+9,Faye,Pos,42
+10,Ron,Neg,22
+11,Ron,Neu,10
+12,Ron,Pos,38
+13,Jason,Neg,29
+14,Jason,Neu,8
+15,Jason,Pos,35

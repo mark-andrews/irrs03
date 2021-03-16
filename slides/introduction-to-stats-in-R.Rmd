@@ -1,0 +1,195 @@
+---
+title: "An Introduction to Statistical Data Analysis in R^[These slides are not intended to be self-contained and comprehensive, but just aim to provide some of the workshop's content. Much more will be provided in the workshop itself.]"
+author: |
+  | Mark Andrews
+  | Psychology Department, Nottingham Trent University
+fontsize: 10pt
+output:
+ beamer_presentation:
+  keep_tex: false
+  fonttheme: "serif"
+  includes:
+   in_header: slides_preamble.tex
+---
+
+
+
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = T, warning = FALSE, message = FALSE)
+options(scipen=9)
+set.seed(42)
+
+library(tidyverse)
+
+available_packages <- available.packages(repos = "http://cran.us.r-project.org") %>% as_tibble()
+
+open_licences <- str_detect(available_packages$License, 
+                            regex('gpl|bsd|mit|apache|cc|GNU|artistic', ignore_case = T)) %>% 
+  mean()
+```
+
+
+
+# Linear regression
+
+* Predict `ACT` as a linear function of `education` in the `sat_act` data frame.
+```{r}
+sat_act <- read_csv('../data/sat_act.csv')
+M <- lm(ACT ~ education, data=sat_act)
+summary(M)
+```
+
+# Predictions in linear regression
+
+* On the basis of our fitted model ```M```, we can make predictions about possible values of the predictor variable. 
+```{r}
+hypothetical_data <- data.frame(education = c(1, 2, 5, 10, 15))
+predict(M, newdata=hypothetical_data)
+```
+
+
+# Multiple linear regression
+
+* We can add as many predictor variables as we like.
+```{r}
+M <- lm(ACT ~ education + age + gender, data=sat_act)
+summary(M)
+```
+
+# Collinearity
+
+* We'll evaluate multicollinerity using Variance Inflation Factor (VIF):
+```{r}
+library(car)
+vif(M)
+```
+
+# General linear models
+
+* We can use predictors that categorical as well as continuous in our model. 
+* Here, we investigate how the post treatment weight of a patient differs from their pre treatment weight, for three different types of therapy (control, CBT, family therapy).
+
+```{r}
+anorexia <- read_csv('../data/anorexia.csv')
+```
+
+# General linear models (continued)
+
+* First, we'll visualize the data.
+```{r, out.width='0.75\\textwidth',out.extra='keepaspectratio', fig.align='center'}
+ggplot(anorexia,
+       aes(x = Prewt, y = Postwt, col=Treat)) +
+  geom_point() +
+  stat_smooth(method='lm', se=F) +
+  theme_classic()
+```
+
+# General linear models (continued)
+
+* Here, we do a *varying intercept*, which is also known as an *ANCOVA*:
+```{r}
+M <- lm(Postwt ~ Prewt + Treat, data=anorexia)
+summary(M)
+```
+
+# General linear models (continued)
+
+* We cam also do a *varying slopes and varying intercepts* model. This is a type of interaction model:
+```{r}
+M_interaction <- lm(Postwt ~ Prewt * Treat, data=anorexia)
+summary(M_interaction)
+```
+
+# Model evaluation
+
+* We can compare any two linear models using the generic ```anova``` function. 
+* Here, we'll use this to test whether the varying slopes and intercepts model is a better fit to the data than the just varying intercepts model:
+
+```{r}
+anova(M, M_interaction)
+```
+
+# One-way Anova
+
+* We can use `aov` for one-way (and other) Anova.
+```{r}
+data(PlantGrowth)
+M <- aov(weight ~ group, data=PlantGrowth)
+summary(M)
+```
+
+# Multiple comparisons
+
+* We can do Tukey's range test to perform multiple comparisons:
+```{r}
+TukeyHSD(M)
+```
+
+# One-way Anova (alternative)
+
+* Note that we can also we can do Anova using `lm()`:
+```{r}
+M <- lm(weight ~ group, data=PlantGrowth)
+anova(M)
+```
+
+
+# Two-way anova
+
+```{r, out.width='0.75\\textwidth',out.extra='keepaspectratio', fig.align='center'}
+data("ToothGrowth")
+
+ggplot(ToothGrowth,
+       aes(x = factor(dose), y = len, col = supp)) +
+  geom_boxplot() +
+  theme_classic()
+```
+
+
+# Two-way (factorial) anova
+
+```{r}
+M <- aov(len ~ supp*dose, data=ToothGrowth)
+summary(M)
+```
+
+# One-way repeated measures Anova
+
+```{r}
+recall_data <- read_csv('../data/recall_data.csv')
+
+M <- aov(Recall ~ Valence + Error(Subject/Valence), data=recall_data)
+summary(M)
+```
+
+# One-way repeated measures Anova (continued)
+
+* Multiple comparisons, with Bonferroni correction
+```{r}
+with(recall_data, 
+     pairwise.t.test(x=Recall, g=Valence), 
+     p.adjust.methods='bonferroni', 
+     paired=T)
+```
+
+# Twoway repeated measures Anova
+```{r}
+recall_data2 <- read_csv('../data/recall_data2.csv')
+M <- aov(Recall ~ Valence*Task + Error(Subject/(Task*Valence)), 
+         data=recall_data2)
+summary(M)
+```
+
+
+# Multilevel models
+
+* The repeated measures anova above can be done, and I think *should* be done, using multilevel models too.
+
+```{r}
+library(lme4)
+M <- lmer(Recall ~ Valence*Task + (1|Subject),
+          data=recall_data2)
+```
+
+
+
