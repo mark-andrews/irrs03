@@ -4,7 +4,7 @@ All participants will have been sent a password for these videos by email.
 # Day 1
 
 * [12pm-2pm](https://vimeo.com/524949907)
-* 3pm-5pm
+* [3pm-5pm](https://vimeo.com/525053387)
 * 6pm-8pm
 
 # Day 2
