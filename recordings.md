@@ -10,5 +10,5 @@ All participants will have been sent a password for these videos by email.
 # Day 2
 
 * [12pm-2pm](https://vimeo.com/525594728)
-* 3pm-5pm
+* [3pm-5pm](https://vimeo.com/525695756)
 * 6pm-8pm
